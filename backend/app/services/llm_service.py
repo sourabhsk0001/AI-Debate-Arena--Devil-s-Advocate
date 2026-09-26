@@ -50,10 +50,12 @@ RETRIEVED EMPIRICAL EVIDENCE:
 {evidence_context}
 
 INSTRUCTIONS:
-1. Identify 2-3 specific logical flaws, unproven assumptions, or vulnerabilities in their statement.
-2. Flag any specific logical fallacies (e.g., Slippery Slope, False Dilemma, Straw Man, Hasty Generalization, Appeal to Emotion, Post Hoc Ergo Propter Hoc, or None).
-3. Deliver a persuasive, incisive counterargument integrating the opposing evidence.
-4. Conclude with a single piercing cross-examination question that puts the user on the defensive.
+1. Direct Assumption Challenge: Explicitly begin by pinpointing the user's unproven premise (e.g. "Your argument assumes that [X]...").
+2. Demand Empirical Evidence: Ask what verifiable data or study substantiates their claim.
+3. Counter-Scenario & Edge Cases: Press them on realistic trade-offs or situations where their claim breaks down (e.g. "...and how would you address situations where collaboration, mentoring, or economic friction arise?").
+4. Flag any specific logical fallacies detected (e.g., Hasty Generalization, Slippery Slope, False Dilemma, Circular Reasoning, or None detected).
+5. Identify 2 concrete vulnerabilities in their logic.
+6. Provide a razor-sharp cross-examination question.
 
 OUTPUT MUST BE VALID STRICT JSON:
 {{
@@ -126,34 +128,52 @@ OUTPUT MUST BE VALID STRICT JSON:
             weaknesses.append("Conflates ethical intent with practical systemic feasibility.")
             weaknesses.append("Fails to account for second-order economic externalities.")
 
-        evidence_fact = evidence[0]["fact"] if evidence else f"Empirical data in {topic} suggests significant systemic tradeoffs."
-        evidence_src = evidence[0]["source"] if evidence else "Economic Policy Review"
+        # Extract core assumption or premise from user argument
+        clean_arg = user_argument.strip().rstrip(".")
+        
+        # Determine counter-scenario trade-offs based on topic or input
+        if "remote" in lower_arg or "office" in lower_arg:
+            counter_scenario = "collaboration, spontaneous team innovation, and junior mentoring are significantly more difficult"
+            assumption_focus = "remote work uniformly increases productivity across all worker demographics"
+        elif "ai" in lower_arg or "intelligence" in lower_arg:
+            counter_scenario = "regulatory capture empowers entrenched monopolies while halting open-source development"
+            assumption_focus = "centralized oversight can accurately anticipate emergent algorithmic hazards"
+        elif "ubi" in lower_arg or "income" in lower_arg:
+            counter_scenario = "unfunded recurring cash transfers fuel demand-pull inflation and labor supply contractions"
+            assumption_focus = "universal cash payouts do not trigger severe macroeconomic distortions"
+        else:
+            counter_scenario = "unintended second-order systemic externalities outweigh initial perceived gains"
+            assumption_focus = f"{topic.lower()} operates without severe trade-offs"
 
-        opposing_pos = "opposing" if user_position.lower() == "for" else "supporting"
+        evidence_fact = evidence[0]["fact"] if evidence else f"Empirical data in {topic} suggests significant systemic trade-offs."
+        evidence_src = evidence[0]["source"] if evidence else "Policy Research Quarterly"
 
         if round_number == 1:
             counter = (
-                f"While your opening stance assumes that {topic} leads to universally favorable outcomes, "
-                f"it disregards critical structural constraints. By adopting a strictly {user_position.upper()} position, "
-                f"you overlook that policies do not exist in an ethical vacuum. For instance, according to {evidence_src}, "
-                f"'{evidence_fact}'. Without accounting for this friction, your premise risks collapsing under the weight "
-                f"of real-world implementation hurdles."
+                f"Your argument assumes that {assumption_focus}. "
+                f"However, empirical research challenges this premise. According to {evidence_src}, "
+                f"'{evidence_fact}'. Without accounting for these constraints, your reasoning risks treating an idealized scenario as a universal rule."
             )
-            question = f"How do you propose reconciling your assertion with the empirical data documented by {evidence_src}?"
+            question = (
+                f"What verifiable evidence supports this claim, and how would you address situations where {counter_scenario}?"
+            )
         elif round_number == 2:
             counter = (
-                f"You have attempted to pivot, yet your core premise remains vulnerable. You treat secondary effects as mere "
-                f"anomalies rather than systemic features. Even if we grant your primary moral assertion, empirical precedent "
-                f"proves that aggressive intervention invariably produces counter-intuitive incentives. {evidence_fact}."
+                f"You have defended your premise, yet the core vulnerability persists: you treat negative side-effects as secondary anomalies "
+                f"rather than inherent systemic features. Even if we grant your primary assertion, {evidence_src} demonstrates that "
+                f"'{evidence_fact}'."
             )
-            question = f"If your proposed approach creates disproportionate costs for ordinary stakeholders, why should society accept your moral priority?"
+            question = (
+                f"If empirical reality documents measurable friction, why should decision-makers prioritize your asserted outcome over the documented costs?"
+            )
         else:
             counter = (
-                f"In this final stage of debate, the fundamental flaw in your perspective is exposed: it hinges on an idealized "
-                f"scenario that historical and empirical reality consistently refutes. By ignoring the counterbalancing "
-                f"forces highlighted in {evidence_src}, your conclusion remains aspirational rather than rigorously proven."
+                f"In this final round, your position hinges on an assumption that historical and empirical reality consistently refutes. "
+                f"By sidestepping the documented trade-offs highlighted in {evidence_src}, your conclusion remains aspirational rather than rigorously proven."
             )
-            question = f"What is the single most falsifiable piece of evidence that could persuade you that your position is mistaken?"
+            question = (
+                f"What single piece of empirical data could definitively persuade you that your position is mistaken?"
+            )
 
         return {
             "counterargument": counter,
