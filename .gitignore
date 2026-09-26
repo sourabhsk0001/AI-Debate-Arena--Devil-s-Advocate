@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+backend/venv/
+
+# Next.js
+.next/
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+local_storage.json
+chroma_db/
+
+# Environment
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+backend/.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
