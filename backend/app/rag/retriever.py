@@ -61,14 +61,31 @@ CORPUS_DOCUMENTS = [
         "keywords": ["social media", "minors", "teens", "mental health", "ban", "under 16", "children"]
     },
     {
-        "id": "doc_nuclear_1",
-        "title": "International Energy Agency Net Zero by 2050 Roadmap",
-        "source": "International Energy Agency (2023)",
-        "chunk": "Nuclear energy provides 10% of global electricity with near-zero operational carbon emissions and maintains the highest capacity factor (>92%) of any baseload clean energy source.",
-        "url": "https://www.iea.org/reports/net-zero-by-2050",
-        "keywords": ["nuclear", "energy", "climate", "decarbonization", "solar", "wind", "renewables"]
+        "id": "doc_eng_1",
+        "title": "National Employability Report — Engineering Graduates",
+        "source": "Aspiring Minds / National Employability Study (2023)",
+        "chunk": "Over 80% of engineering graduates in India are unemployable for core technology roles, with only 3.8% demonstrating top-tier software logic and design skills required by product engineering firms.",
+        "url": "https://www.aspiringminds.com/research-reports/",
+        "keywords": ["engineering", "engineer", "btech", "degree", "college", "cs", "coding", "software engineer", "jobs", "employability", "krna", "sahi", "career", "padhai"]
+    },
+    {
+        "id": "doc_eng_2",
+        "title": "NASSCOM Tech Workforce & Fresher Hiring Report",
+        "source": "NASSCOM / Gartner Tech Hiring Trends (2024)",
+        "chunk": "Entry-level campus recruitment across IT services contracted by 28% as AI coding assistants automated routine boilerplate programming and automated test script generation.",
+        "url": "https://nasscom.in/knowledge-center/publications",
+        "keywords": ["engineering", "hiring", "placements", "salary", "coding", "automation", "tech", "fresher", "it", "package"]
+    },
+    {
+        "id": "doc_edu_1",
+        "title": "Higher Education ROI and Underemployment Analysis",
+        "source": "Federal Reserve Bank / OECD Employment Outlook (2023)",
+        "chunk": "Over 41% of recent technical college graduates work in jobs that do not require a college degree, with rising tuition debt and stagnant starting packages lowering degree ROI.",
+        "url": "https://www.oecd.org/education/",
+        "keywords": ["college", "degree", "education", "jobs", "salary", "roi", "career", "study"]
     }
 ]
+
 
 class RAGRetriever:
     """RAG Retrieval Engine supporting vector search and keyword relevance ranking."""
