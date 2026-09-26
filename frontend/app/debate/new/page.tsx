@@ -10,6 +10,9 @@ import {
   AlertCircle,
   HelpCircle,
   Award,
+  Sparkles,
+  Bot,
+  User,
 } from "lucide-react";
 import { Position, DebateMode, Difficulty } from "@/types/debate";
 import { api } from "@/lib/api";
@@ -25,6 +28,7 @@ export default function NewDebatePage() {
   const [mode, setMode] = useState<DebateMode>("devils_advocate");
   const [difficulty, setDifficulty] = useState<Difficulty>("intermediate");
   const [rounds, setRounds] = useState(5); // Section 8: default debate should contain 5 rounds
+  const [aiStartsFirst, setAiStartsFirst] = useState(true); // AI makes the argument, user gives the topic
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -58,7 +62,8 @@ export default function NewDebatePage() {
         position,
         mode,
         difficulty,
-        rounds
+        rounds,
+        aiStartsFirst
       );
       router.push(`/debate/${session.id}`);
     } catch (err: any) {
@@ -213,6 +218,51 @@ export default function NewDebatePage() {
               ))}
             </div>
           </div>
+
+          {/* 6. Debate Opener: AI or User */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-zinc-200 uppercase tracking-wider flex items-center justify-between">
+              <span>Who Presents the Opening Argument? *</span>
+              <span className="text-[11px] font-semibold text-rose-400">AI Starts First (Recommended)</span>
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setAiStartsFirst(true)}
+                className={`p-3.5 rounded-2xl border text-left transition-all ${
+                  aiStartsFirst
+                    ? "bg-rose-950/40 border-rose-500 text-white shadow-lg shadow-rose-950/40 ring-1 ring-rose-500"
+                    : "bg-surface border-surface-border text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                }`}
+              >
+                <div className="flex items-center gap-2 text-xs font-bold text-rose-300">
+                  <Bot className="w-4 h-4 text-rose-400" />
+                  <span>AI Argues First</span>
+                </div>
+                <div className="text-[11px] text-zinc-400 mt-1.5 leading-relaxed">
+                  You give the topic, the AI delivers the initial provocative argument, and you challenge it.
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAiStartsFirst(false)}
+                className={`p-3.5 rounded-2xl border text-left transition-all ${
+                  !aiStartsFirst
+                    ? "bg-rose-950/40 border-rose-500 text-white shadow-lg shadow-rose-950/40 ring-1 ring-rose-500"
+                    : "bg-surface border-surface-border text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                }`}
+              >
+                <div className="flex items-center gap-2 text-xs font-bold text-zinc-200">
+                  <User className="w-4 h-4 text-zinc-300" />
+                  <span>You Argue First</span>
+                </div>
+                <div className="text-[11px] text-zinc-400 mt-1.5 leading-relaxed">
+                  You state your affirmative or opposing thesis first, and the AI challenges it.
+                </div>
+              </button>
+            </div>
+          </div>
+
 
           {/* Error Message */}
           {error && (

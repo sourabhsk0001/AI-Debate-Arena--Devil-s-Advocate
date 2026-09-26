@@ -119,4 +119,60 @@ class DevilAdvocateGeneratorNode:
             "confidence": 0.88
         }
 
+    def generate_opening(self, topic: str, position: str = "for", mode: str = "devils_advocate", evidence: List[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """
+        Generates the AI's opening argument for a given topic when the user wants the AI to make the first move.
+        """
+        evidence_fact = evidence[0]["chunk"] if evidence else f"Empirical field studies on {topic} demonstrate non-trivial systemic friction."
+        evidence_src = evidence[0]["source"] if evidence else "Policy Research Quarterly"
+
+        if mode == "socratic":
+            opening = (
+                f"Welcome to our inquiry on the topic: '{topic}'. "
+                f"Before we can establish whether this resolution is valid, we must critically dissect the foundational premises. "
+                f"Most advocates assume the terms of this debate are unambiguous, but empirical observation shows that definitions dictate outcomes."
+            )
+            challenge = "Unexamined normative terms"
+            question = f"Regarding '{topic}', by what specific metric or ethical standard are you evaluating success?"
+
+        elif mode == "opponent":
+            opposing_pos = "AGAINST" if position.lower() == "for" else "FOR"
+            opening = (
+                f"Opening the debate on '{topic}': I stand formally {opposing_pos} this resolution. "
+                f"The affirmative stance assumes seamless execution, yet rigorous findings from {evidence_src} demonstrate that: "
+                f"'{evidence_fact}'. Based on this evidence, adopting this motion produces systemic harm that outweighs asserted benefits."
+            )
+            challenge = "Core counter-resolution impact"
+            question = f"Given that {evidence_src} documents these adverse outcomes, how can you justify supporting '{topic}'?"
+
+        elif mode == "neutral_judge":
+            opening = (
+                f"[ADJUDICATOR BENCH — OPENING INVOCATION]\n\n"
+                f"The debate on the motion '{topic}' is formally convened. "
+                f"The burden of proof rests on the advocate to establish a coherent, empirically grounded case. "
+                f"The bench notes relevant benchmark findings from {evidence_src}: '{evidence_fact}'."
+            )
+            challenge = "Allocation of burden of proof"
+            question = "What is your primary factual and logical warrant to substantiate your position?"
+
+        else:
+            # Mode 1: Devil's Advocate
+            opp_stance = "against" if position.lower() == "for" else "in favor of"
+            opening = (
+                f"Opening the adversarial challenge on '{topic}': "
+                f"While popular consensus often assumes your position is self-evident, empirical reality reveals major vulnerabilities. "
+                f"According to {evidence_src}, '{evidence_fact}'. "
+                f"By treating this resolution as an unmitigated good, you ignore the secondary economic and operational trade-offs."
+            )
+            challenge = "Unexamined systemic externalities"
+            question = f"How do you address the trade-offs documented in {evidence_src}, and why should your stance take precedence?"
+
+        return {
+            "counterargument": opening,
+            "key_challenge": challenge,
+            "question": question,
+            "confidence": 0.94
+        }
+
 devil_advocate_generator_node = DevilAdvocateGeneratorNode()
+

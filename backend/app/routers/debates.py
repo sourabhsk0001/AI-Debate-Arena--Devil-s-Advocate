@@ -18,6 +18,8 @@ from app.core.database import StorageService
 from app.core.auth import get_current_user_optional
 from app.agents.graph import debate_workflow
 from app.agents.state import DebateGraphState
+from app.agents.generator import devil_advocate_generator_node
+from app.rag.retriever import rag_retriever
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +31,39 @@ async def create_debate(req: CreateDebateSchema, user: Optional[dict] = Depends(
     user_id = user.get("sub", "guest") if user else "guest"
     now_iso = datetime.now(timezone.utc).isoformat()
 
+    messages = []
+    if req.ai_starts_first:
+        evidence = rag_retriever.retrieve_evidence(topic=req.topic, query=req.topic, limit=2)
+        opening = devil_advocate_generator_node.generate_opening(
+            topic=req.topic,
+            position=req.position.lower(),
+            mode=req.mode.lower(),
+            evidence=evidence
+        )
+        ai_content = opening.get("counterargument", "")
+        if opening.get("question"):
+            ai_content = f"{ai_content}\n\n{opening.get('question')}"
+
+        opening_msg = {
+            "id": f"msg_ai_{uuid.uuid4().hex[:8]}",
+            "debate_id": debate_id,
+            "role": "devil_advocate",
+            "content": ai_content,
+            "round": 1,
+            "analysis": {
+                "claim": f"Opening thesis for '{req.topic}'",
+                "assumptions": ["Assumes systemic friction and trade-offs are not adequately countered"],
+                "strengths": ["Clear adversarial challenge", "Cites empirical baseline data"],
+                "weaknesses": ["Awaits user rebuttal on domain-specific mitigations"],
+                "logical_issues": [],
+                "evidence_needed": []
+            },
+            "counter": opening,
+            "evidence": evidence,
+            "created_at": now_iso
+        }
+        messages.append(opening_msg)
+
     session_data = {
         "id": debate_id,
         "user_id": user_id,
@@ -39,7 +74,7 @@ async def create_debate(req: CreateDebateSchema, user: Optional[dict] = Depends(
         "max_rounds": req.max_rounds,
         "current_round": 1,
         "status": "active",
-        "messages": [],
+        "messages": messages,
         "evaluation": None,
         "created_at": now_iso,
         "updated_at": now_iso,
@@ -47,6 +82,58 @@ async def create_debate(req: CreateDebateSchema, user: Optional[dict] = Depends(
 
     await StorageService.save_debate(debate_id, session_data)
     return session_data
+
+
+@router.post("/{debate_id}/ai-open")
+async def trigger_ai_opening(debate_id: str):
+    """Generates the AI's opening argument for this debate motion."""
+    data = await StorageService.get_debate(debate_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Debate session not found")
+
+    now_iso = datetime.now(timezone.utc).isoformat()
+    topic = data.get("topic", "")
+    position = data.get("position", data.get("user_position", "for"))
+    mode = data.get("mode", "devils_advocate")
+
+    evidence = rag_retriever.retrieve_evidence(topic=topic, query=topic, limit=2)
+    opening = devil_advocate_generator_node.generate_opening(
+        topic=topic,
+        position=position,
+        mode=mode,
+        evidence=evidence
+    )
+    ai_content = opening.get("counterargument", "")
+    if opening.get("question"):
+        ai_content = f"{ai_content}\n\n{opening.get('question')}"
+
+    opening_msg = {
+        "id": f"msg_ai_{uuid.uuid4().hex[:8]}",
+        "debate_id": debate_id,
+        "role": "devil_advocate",
+        "content": ai_content,
+        "round": data.get("current_round", 1),
+        "analysis": {
+            "claim": f"Opening thesis for '{topic}'",
+            "assumptions": ["Assumes systemic friction and trade-offs are not adequately countered"],
+            "strengths": ["Clear adversarial challenge", "Cites empirical baseline data"],
+            "weaknesses": ["Awaits user rebuttal on domain-specific mitigations"],
+            "logical_issues": [],
+            "evidence_needed": []
+        },
+        "counter": opening,
+        "evidence": evidence,
+        "created_at": now_iso
+    }
+
+    if "messages" not in data:
+        data["messages"] = []
+    data["messages"].append(opening_msg)
+    data["updated_at"] = now_iso
+    await StorageService.save_debate(debate_id, data)
+
+    return {"debate": data, "aiMessage": opening_msg}
+
 
 
 @router.get("", response_model=List[DebateSessionSchema])

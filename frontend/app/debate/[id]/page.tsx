@@ -9,9 +9,10 @@ import {
   Award,
   Layers,
   ArrowRight,
-  RotateCcw,
   ShieldAlert,
   Loader2,
+  Bot,
+  Sparkles,
 } from "lucide-react";
 import { DebateSession, DebateMessage as DebateMessageType, DebateMode } from "@/types/debate";
 import { api } from "@/lib/api";
@@ -72,6 +73,20 @@ export default function DebateRoomPage() {
       }
     } catch (err: any) {
       setError(err.message || "Something went wrong while generating the counterargument. Please try again.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleAIOpen = async () => {
+    if (!session || sending) return;
+    setError(null);
+    setSending(true);
+    try {
+      const res = await api.requestAIOpening(session.id);
+      setSession(res.debate);
+    } catch (err: any) {
+      setError(err.message || "Failed to generate AI opening argument.");
     } finally {
       setSending(false);
     }
@@ -224,11 +239,22 @@ export default function DebateRoomPage() {
               <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400">
                 <Flame className="w-7 h-7" />
               </div>
-              <div className="max-w-sm space-y-1">
-                <h3 className="text-base font-bold text-white">Opening Argument Required</h3>
+              <div className="max-w-sm space-y-1.5">
+                <h3 className="text-base font-bold text-white">Opening Argument</h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
-                  State your primary thesis for why you argue <strong className="text-zinc-200 uppercase">{session.position}</strong> this motion.
+                  Have the AI present the initial argument on <strong className="text-zinc-200">"{session.topic}"</strong> so you can challenge it, or type your own thesis below.
                 </p>
+              </div>
+              <div className="pt-2">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  loading={sending}
+                  onClick={handleAIOpen}
+                  icon={<Bot className="w-4 h-4" />}
+                >
+                  Let AI Make Opening Argument
+                </Button>
               </div>
             </div>
           ) : (

@@ -23,6 +23,8 @@ class CreateDebateSchema(BaseModel):
     mode: str = "devils_advocate" # "devils_advocate", "socratic", "opponent", "neutral_judge"
     difficulty: str = "intermediate" # "beginner", "intermediate", "advanced"
     max_rounds: int = 5
+    ai_starts_first: bool = False
+
 
 class SubmitMessageSchema(BaseModel):
     content: str
