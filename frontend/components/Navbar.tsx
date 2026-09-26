@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Flame, ShieldAlert, Sparkles, LayoutDashboard, History, PlusCircle } from "lucide-react";
+import { Flame, ShieldAlert, Sparkles, LayoutDashboard, History, PlusCircle, Scale } from "lucide-react";
 
 export default function Navbar() {
   return (
@@ -30,6 +30,10 @@ export default function Navbar() {
 
         {/* Center Links */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-300">
+          <Link href="/courtroom" className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-semibold hover:bg-amber-500/20 transition-all shadow-sm shadow-amber-900/20">
+            <Scale className="w-4 h-4 text-amber-400 animate-pulse" />
+            <span>AI Courtroom (Dual-Bot)</span>
+          </Link>
           <Link href="/dashboard" className="hover:text-white transition-colors flex items-center gap-1.5">
             <LayoutDashboard className="w-4 h-4 text-blue-400" />
             Dashboard

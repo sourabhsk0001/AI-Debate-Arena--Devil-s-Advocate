@@ -429,6 +429,22 @@ class ApiClient {
       } catch {}
     }
   }
+
+  async getCourtroomCases(): Promise<any[]> {
+    return await this.request<any[]>("/api/courtroom/cases");
+  }
+
+  async simulateCourtroomRound(payload: {
+    topic: string;
+    round: number;
+    total_rounds: number;
+    history: any[];
+  }): Promise<any> {
+    return await this.request<any>("/api/courtroom/simulate-round", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  }
 }
 
 export const api = new ApiClient();

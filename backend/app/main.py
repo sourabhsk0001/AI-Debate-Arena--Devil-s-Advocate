@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.database import db_manager
-from app.routers import auth, debates, topics, rag
+from app.routers import auth, debates, topics, rag, courtroom
 
 logging.basicConfig(
     level=logging.INFO,
@@ -43,6 +43,7 @@ app.include_router(auth.router)
 app.include_router(debates.router)
 app.include_router(topics.router)
 app.include_router(rag.router)
+app.include_router(courtroom.router)
 
 @app.get("/health")
 async def health_check():
