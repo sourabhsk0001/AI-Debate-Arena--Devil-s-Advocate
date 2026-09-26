@@ -27,6 +27,7 @@ async def create_debate(req: CreateDebateRequest, user: Optional[dict] = Depends
         topic=req.topic,
         user_position=req.user_position,
         difficulty=req.difficulty,
+        mode=req.mode,
         total_rounds=req.total_rounds,
         current_round=1,
         status="active",
@@ -58,11 +59,12 @@ async def submit_turn(debate_id: str, req: SubmitTurnRequest):
     if session.status == "completed":
         raise HTTPException(status_code=400, detail="Debate is already completed")
 
-    # Run Devil's Advocate Agent
+    # Run Agent with specified debate mode
     turn: Turn = await debate_agent.run_round(
         topic=session.topic,
         user_position=session.user_position,
         difficulty=session.difficulty,
+        mode=session.mode,
         round_number=session.current_round,
         total_rounds=session.total_rounds,
         user_argument=req.user_argument,
@@ -78,6 +80,7 @@ async def submit_turn(debate_id: str, req: SubmitTurnRequest):
             topic=session.topic,
             user_position=session.user_position,
             difficulty=session.difficulty,
+            mode=session.mode,
             turns=[t.dict() for t in session.turns]
         )
         session.evaluation = FinalEvaluation(**eval_dict)
@@ -103,6 +106,7 @@ async def conclude_debate(debate_id: str):
         topic=session.topic,
         user_position=session.user_position,
         difficulty=session.difficulty,
+        mode=session.mode,
         turns=[t.dict() for t in session.turns]
     )
     session.evaluation = FinalEvaluation(**eval_dict)

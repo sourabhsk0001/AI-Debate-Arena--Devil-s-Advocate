@@ -26,36 +26,116 @@ class LLMService:
         difficulty: str,
         user_argument: str,
         previous_turns: List[Dict[str, Any]],
-        retrieved_evidence: List[Dict[str, Any]]
+        retrieved_evidence: List[Dict[str, Any]],
+        mode: str = "devils_advocate"
     ) -> Dict[str, Any]:
         """
-        Executes Devil's Advocate turn via OpenAI if configured,
-        or uses high-level intelligent cognitive heuristic agent.
+        Executes debate turn across 4 modes:
+        1. devils_advocate: Challenge position, identify assumptions & weaknesses, counterarguments, respectful.
+        2. socratic: Primarily asks questions, probes definitions, avoids immediate counter-theses.
+        3. opponent: Strongest reasonable opposing debate case with thesis, evidence, and impacts.
+        4. neutral_judge: Impartial analysis across Logic, Evidence, Rebuttal, Clarity, Consistency.
         """
         evidence_context = "\n".join([
             f"- {e.get('title')}: {e.get('fact')} (Source: {e.get('source')})"
             for e in retrieved_evidence
         ])
 
-        system_prompt = f"""You are the ultimate Devil's Advocate debater in an elite AI Debate Arena.
-Your mission is to rigorously stress-test the user's worldview, detect cognitive flaws, dismantle their argument with sharp logic and empirical rigor, and pose an inescapable cross-examination question.
+        opposing_position = "AGAINST" if user_position.lower() == "for" else "FOR"
 
+        if mode == "socratic":
+            system_prompt = f"""You are a master Socratic Inquirer in an elite AI Debate Arena.
 TOPIC: "{topic}"
 USER'S POSITION: {user_position.upper()}
-YOUR ROLE: Take the opposing stance ("{'AGAINST' if user_position.lower() == 'for' else 'FOR'}").
+YOUR ROLE: Socratic Teacher. You primarily ask incisive, fundamental questions rather than giving immediate counterarguments.
+
+RULES:
+1. Do not immediately deliver long counterarguments or take a dogmatic opposing stance.
+2. Probe their definitions (e.g. "What do you mean by better?").
+3. Question underlying assumptions and causal leaps (e.g. "Does lower cost necessarily mean better learning outcomes?").
+4. Challenge the user to establish necessary vs sufficient conditions.
+5. In "counterargument", offer a concise philosophical framing observation (1-2 sentences).
+6. In "cross_examination_question", provide the primary direct Socratic question.
+7. Identify ambiguities in definitions under "identified_weaknesses".
+8. Flag fallacies (Equivocation, Hasty Generalization, False Dilemma) under "detected_fallacies".
+
+OUTPUT MUST BE VALID STRICT JSON:
+{{
+  "counterargument": "...",
+  "cross_examination_question": "...",
+  "identified_weaknesses": ["..."],
+  "detected_fallacies": ["..."]
+}}"""
+        elif mode == "opponent":
+            system_prompt = f"""You are a championship Competitive Debate Opponent taking the direct opposite stance.
+TOPIC: "{topic}"
+USER'S POSITION: {user_position.upper()}
+YOUR ROLE: Strongly argue {opposing_position}.
+DIFFICULTY: {difficulty.upper()}
+CURRENT ROUND: Round {round_number} of {total_rounds}.
+
+EMPIRICAL EVIDENCE:
+{evidence_context}
+
+RULES:
+1. Take the direct opposite position from the user.
+2. Construct the strongest, most compelling opposing argument with thesis, warrant, and impacts.
+3. Integrate real empirical evidence and policy data.
+4. Conclude with a rigorous cross-examination question.
+5. Highlight core structural flaws in "identified_weaknesses".
+
+OUTPUT MUST BE VALID STRICT JSON:
+{{
+  "counterargument": "...",
+  "cross_examination_question": "...",
+  "identified_weaknesses": ["..."],
+  "detected_fallacies": ["..."]
+}}"""
+        elif mode == "neutral_judge":
+            system_prompt = f"""You are an impartial Neutral Judge / Adjudicator in the AI Debate Arena.
+TOPIC: "{topic}"
+USER'S POSITION: {user_position.upper()}
+YOUR ROLE: Neutral Adjudicator. DO NOT argue with the user or take any side on the resolution.
+
+RULES:
+1. Objectively evaluate the user's argument across the 5 official criteria:
+   - Logic: Soundness of claims, syllogisms, and validity
+   - Evidence: Fact-checking and empirical grounding vs unsupported assertions
+   - Rebuttal: Responsiveness to prior points or opposing perspectives
+   - Clarity: Precision of language and rhetorical coherence
+   - Consistency: Coherence and non-contradiction across rounds
+2. In "counterargument", present the formal Adjudication Feedback evaluating these 5 dimensions.
+3. In "cross_examination_question", provide an Adjudicator Inquiry challenging the debater to fill the most significant evidentiary or logical gap in the next round.
+4. In "identified_weaknesses", list specific areas to improve.
+5. In "detected_fallacies", identify any logical fallacies present.
+
+OUTPUT MUST BE VALID STRICT JSON:
+{{
+  "counterargument": "...",
+  "cross_examination_question": "...",
+  "identified_weaknesses": ["..."],
+  "detected_fallacies": ["..."]
+}}"""
+        else:
+            # Mode 1: Devil's Advocate
+            system_prompt = f"""You are the ultimate Devil's Advocate debater in an elite AI Debate Arena.
+TOPIC: "{topic}"
+USER'S POSITION: {user_position.upper()}
+YOUR ROLE: Take the opposing stance ("{opposing_position}").
 DIFFICULTY: {difficulty.upper()} (friendly: constructive; standard: sharp & academic; brutal: ruthless cross-examination).
 CURRENT ROUND: Round {round_number} of {total_rounds}.
 
 RETRIEVED EMPIRICAL EVIDENCE:
 {evidence_context}
 
-INSTRUCTIONS:
-1. Direct Assumption Challenge: Explicitly begin by pinpointing the user's unproven premise (e.g. "Your argument assumes that [X]...").
-2. Demand Empirical Evidence: Ask what verifiable data or study substantiates their claim.
-3. Counter-Scenario & Edge Cases: Press them on realistic trade-offs or situations where their claim breaks down (e.g. "...and how would you address situations where collaboration, mentoring, or economic friction arise?").
-4. Flag any specific logical fallacies detected (e.g., Hasty Generalization, Slippery Slope, False Dilemma, Circular Reasoning, or None detected).
-5. Identify 2 concrete vulnerabilities in their logic.
-6. Provide a razor-sharp cross-examination question.
+RULES:
+1. Do not blindly agree with the user.
+2. Identify and challenge implicit assumptions (e.g. "Your argument assumes that...").
+3. Identify vulnerabilities and logical weaknesses.
+4. Give incisive counterarguments grounded in empirical evidence.
+5. Ask challenging questions that test edge cases and trade-offs.
+6. Remain respectful, civil, and intellectually rigorous.
+7. Distinguish verifiable facts from unproven assumptions.
 
 OUTPUT MUST BE VALID STRICT JSON:
 {{
@@ -94,7 +174,8 @@ OUTPUT MUST BE VALID STRICT JSON:
             round_number=round_number,
             difficulty=difficulty,
             user_argument=user_argument,
-            evidence=retrieved_evidence
+            evidence=retrieved_evidence,
+            mode=mode
         )
 
     def _heuristic_turn(
@@ -104,9 +185,10 @@ OUTPUT MUST BE VALID STRICT JSON:
         round_number: int,
         difficulty: str,
         user_argument: str,
-        evidence: List[Dict[str, Any]]
+        evidence: List[Dict[str, Any]],
+        mode: str = "devils_advocate"
     ) -> Dict[str, Any]:
-        """Cognitive reasoning fallback engine that delivers structured, contextual debate responses."""
+        """Cognitive reasoning fallback engine that delivers structured, contextual debate responses across all 4 modes."""
         lower_arg = user_argument.lower()
         
         # Fallacy detection heuristics
@@ -120,7 +202,102 @@ OUTPUT MUST BE VALID STRICT JSON:
         if not detected_fallacies:
             detected_fallacies.append("Unsubstantiated Empirical Premise")
 
-        # Weakness extraction
+        evidence_fact = evidence[0]["fact"] if evidence else f"Empirical studies in {topic} demonstrate measurable trade-offs."
+        evidence_src = evidence[0]["source"] if evidence else "Policy Research Quarterly"
+
+        # --- MODE 2: SOCRATIC ---
+        if mode == "socratic":
+            if round_number == 1:
+                # E.g. "Online education is better" -> "What do you mean by better?"
+                if "better" in lower_arg or "best" in lower_arg or "superior" in lower_arg:
+                    counter = "In Socratic inquiry, terms must be precisely defined before assertions can be evaluated."
+                    question = "What do you mean by 'better'? By what metric or standard are you measuring superiority?"
+                elif "productivity" in lower_arg:
+                    counter = "Productivity is often measured differently by workers and organizations."
+                    question = "How are you defining 'productivity' in this context, and for whom is it increasing?"
+                else:
+                    counter = "Before evaluating the conclusion, we must examine the foundational definitions."
+                    question = f"What is the underlying criterion by which you evaluate whether {topic.lower()} is justified?"
+                weaknesses = ["Premise relies on undefined qualitative terms.", "Assumes consensus on normative criteria."]
+            elif round_number == 2:
+                # E.g. "It is cheaper" -> "Does lower cost necessarily mean better learning outcomes?"
+                if "cheap" in lower_arg or "cost" in lower_arg or "afford" in lower_arg or "money" in lower_arg:
+                    counter = "Cost efficiency and qualitative efficacy are distinct parameters."
+                    question = "Does lower cost necessarily mean better outcomes, or does it risk compromising quality and depth?"
+                elif "time" in lower_arg or "flexib" in lower_arg or "convenien" in lower_arg:
+                    counter = "Personal convenience does not inherently correlate with systemic effectiveness."
+                    question = "Can convenience and flexibility coexist with rigorous discipline, or does one undermine the other?"
+                else:
+                    counter = "Your response introduces a supporting rationale that requires further scrutiny."
+                    question = "Does that attribute alone guarantee the broader outcome you claim, or are there necessary counter-conditions?"
+                weaknesses = ["Conflates intermediate benefits with ultimate objectives.", "Unexamined causal link."]
+            else:
+                counter = "We arrive at the epistemological boundary of the premise."
+                question = "If an exception to your principle exists, does that invalidate the entire premise or merely constrain its scope?"
+                weaknesses = ["Difficulty establishing universal applicability."]
+
+            return {
+                "counterargument": counter,
+                "cross_examination_question": question,
+                "identified_weaknesses": weaknesses,
+                "detected_fallacies": detected_fallacies
+            }
+
+        # --- MODE 3: OPPONENT ---
+        if mode == "opponent":
+            opposing_stance = "AGAINST" if user_position.lower() == "for" else "FOR"
+            counter = (
+                f"Taking the formal opposing stance ({opposing_stance}) on '{topic}': "
+                f"Your thesis relies on an incomplete framework. First, the affirmative case fails to resolve the structural drawbacks: {evidence_fact}. "
+                f"Second, empirical analysis from {evidence_src} reveals that the actual systemic cost disproportionately burdens stakeholders. "
+                f"Therefore, the counter-resolution stands as the superior model."
+            )
+            question = (
+                f"Given that {evidence_src} documents these adverse outcomes, how can your affirmative model claim superiority over the counter-case?"
+            )
+            weaknesses = [
+                "Leaves core opposing impact unaddressed.",
+                "Fails to establish comparative advantage against the counter-position."
+            ]
+            return {
+                "counterargument": counter,
+                "cross_examination_question": question,
+                "identified_weaknesses": weaknesses,
+                "detected_fallacies": detected_fallacies
+            }
+
+        # --- MODE 4: NEUTRAL JUDGE ---
+        if mode == "neutral_judge":
+            # Real-time multi-dimensional scoring of the user turn
+            logic_rt = 8.0 if len(user_argument.split()) > 20 else 6.5
+            evidence_rt = 7.5 if any(c in user_argument for c in ["study", "research", "percent", "%", "data", "report"]) else 5.5
+            rebuttal_rt = 7.0 if round_number > 1 else 8.0
+            clarity_rt = 8.5
+            consistency_rt = 9.0
+
+            counter = (
+                f"[ADJUDICATOR BENCH EVALUATION — ROUND {round_number}]\n\n"
+                f"• Logic ({logic_rt}/10): Clear deductive flow, though premise requires explicit formal substantiation.\n"
+                f"• Evidence ({evidence_rt}/10): Argument {'includes reference to empirical mechanisms' if evidence_rt > 6 else 'currently lacks statistical or empirical grounding'}.\n"
+                f"• Rebuttal ({rebuttal_rt}/10): Responsiveness to core motion is {'solid' if rebuttal_rt >= 7.5 else 'moderate; need deeper defense against trade-offs'}.\n"
+                f"• Clarity ({clarity_rt}/10): High rhetorical precision and concise articulation.\n"
+                f"• Consistency ({consistency_rt}/10): Argument maintains internal coherence with stated position."
+            )
+            question = (
+                f"To strengthen your standing on the rubric for Round {round_number + 1}, what verifiable empirical evidence will you submit to substantiate your core claim?"
+            )
+            weaknesses = [
+                "Empirical evidence score needs bolstering with verifiable citations.",
+                "Premise would benefit from explicit qualification of scope."
+            ]
+            return {
+                "counterargument": counter,
+                "cross_examination_question": question,
+                "identified_weaknesses": weaknesses,
+                "detected_fallacies": detected_fallacies
+            }
+
+        # --- MODE 1: DEVIL'S ADVOCATE (Default) ---
         weaknesses = []
         if len(user_argument.split()) < 30:
             weaknesses.append("Superficial argumentation lacking structural depth and historical precedent.")
@@ -131,7 +308,6 @@ OUTPUT MUST BE VALID STRICT JSON:
         # Extract core assumption or premise from user argument
         clean_arg = user_argument.strip().rstrip(".")
         
-        # Determine counter-scenario trade-offs based on topic or input
         if "remote" in lower_arg or "office" in lower_arg:
             counter_scenario = "collaboration, spontaneous team innovation, and junior mentoring are significantly more difficult"
             assumption_focus = "remote work uniformly increases productivity across all worker demographics"
@@ -144,9 +320,6 @@ OUTPUT MUST BE VALID STRICT JSON:
         else:
             counter_scenario = "unintended second-order systemic externalities outweigh initial perceived gains"
             assumption_focus = f"{topic.lower()} operates without severe trade-offs"
-
-        evidence_fact = evidence[0]["fact"] if evidence else f"Empirical data in {topic} suggests significant systemic trade-offs."
-        evidence_src = evidence[0]["source"] if evidence else "Policy Research Quarterly"
 
         if round_number == 1:
             counter = (
@@ -187,7 +360,8 @@ OUTPUT MUST BE VALID STRICT JSON:
         topic: str,
         user_position: str,
         difficulty: str,
-        turns: List[Dict[str, Any]]
+        turns: List[Dict[str, Any]],
+        mode: str = "devils_advocate"
     ) -> Dict[str, Any]:
         """
         Evaluates the entire debate using an impartial Judge persona.

@@ -37,12 +37,15 @@ export interface FinalEvaluation {
   coaching_tips: string[];
 }
 
+export type DebateMode = "devils_advocate" | "socratic" | "opponent" | "neutral_judge";
+
 export interface DebateSession {
   id: string;
   user_id?: string;
   topic: string;
   user_position: "for" | "against";
   difficulty: "friendly" | "standard" | "brutal";
+  mode: DebateMode;
   total_rounds: number;
   current_round: number;
   status: "active" | "completed";
@@ -189,7 +192,8 @@ class ApiClient {
     topic: string,
     user_position: "for" | "against",
     difficulty: "friendly" | "standard" | "brutal",
-    total_rounds: number = 3
+    total_rounds: number = 3,
+    mode: DebateMode = "devils_advocate"
   ): Promise<DebateSession> {
     try {
       return await this.request<DebateSession>("/api/debates", {
@@ -198,6 +202,7 @@ class ApiClient {
           topic,
           user_position,
           difficulty,
+          mode,
           total_rounds,
         }),
       });
@@ -208,6 +213,7 @@ class ApiClient {
         topic,
         user_position,
         difficulty,
+        mode,
         total_rounds,
         current_round: 1,
         status: "active",

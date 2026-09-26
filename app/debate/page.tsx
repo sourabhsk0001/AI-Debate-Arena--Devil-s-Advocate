@@ -16,6 +16,7 @@ function DebateArenaContent() {
   const posParam = searchParams.get("pos") as "for" | "against" | null;
   const diffParam = searchParams.get("diff") as "friendly" | "standard" | "brutal" | null;
   const roundsParam = searchParams.get("rounds");
+  const modeParam = searchParams.get("mode") as any;
 
   const [session, setSession] = useState<DebateSession | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,7 +36,8 @@ function DebateArenaContent() {
             topicParam,
             posParam || "for",
             diffParam || "standard",
-            roundsParam ? parseInt(roundsParam, 10) : 3
+            roundsParam ? parseInt(roundsParam, 10) : 3,
+            modeParam || "devils_advocate"
           );
           setSession(newSession);
         } else {
@@ -44,7 +46,8 @@ function DebateArenaContent() {
             "Governments Should Heavily Regulate Frontier AI Models",
             "for",
             "standard",
-            3
+            3,
+            "devils_advocate"
           );
           setSession(defaultSession);
         }
@@ -56,7 +59,7 @@ function DebateArenaContent() {
     }
 
     initSession();
-  }, [debateId, topicParam, posParam, diffParam, roundsParam]);
+  }, [debateId, topicParam, posParam, diffParam, roundsParam, modeParam]);
 
   if (loading) {
     return (

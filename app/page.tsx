@@ -16,7 +16,7 @@ import {
   Search,
   Zap,
 } from "lucide-react";
-import { TopicOption, api } from "@/lib/api";
+import { TopicOption, DebateMode, api } from "@/lib/api";
 
 export default function HomePage() {
   const router = useRouter();
@@ -24,6 +24,7 @@ export default function HomePage() {
   const [selectedTopic, setSelectedTopic] = useState("");
   const [customTopic, setCustomTopic] = useState("");
   const [position, setPosition] = useState<"for" | "against">("for");
+  const [mode, setMode] = useState<DebateMode>("devils_advocate");
   const [difficulty, setDifficulty] = useState<"friendly" | "standard" | "brutal">("standard");
   const [rounds, setRounds] = useState(3);
   const [loading, setLoading] = useState(false);
@@ -44,13 +45,13 @@ export default function HomePage() {
 
     setLoading(true);
     try {
-      const session = await api.createDebate(finalTopic, position, difficulty, rounds);
+      const session = await api.createDebate(finalTopic, position, difficulty, rounds, mode);
       router.push(`/debate?id=${session.id}`);
     } catch (err) {
       console.error("Failed to start debate:", err);
       // Fallback redirect with query params
       const topicParam = encodeURIComponent(finalTopic);
-      router.push(`/debate?topic=${topicParam}&pos=${position}&diff=${difficulty}&rounds=${rounds}`);
+      router.push(`/debate?topic=${topicParam}&pos=${position}&diff=${difficulty}&rounds=${rounds}&mode=${mode}`);
     } finally {
       setLoading(false);
     }
@@ -172,12 +173,130 @@ export default function HomePage() {
               </div>
             </div>
 
+            {/* 4 Debate Modes Selection */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-zinc-300">
+                  Select Debate Mode
+                </label>
+                <span className="text-[11px] text-zinc-500 font-mono">
+                  4 AI Agent Personas
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Mode 1: Devil's Advocate */}
+                <button
+                  type="button"
+                  onClick={() => setMode("devils_advocate")}
+                  className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                    mode === "devils_advocate"
+                      ? "bg-rose-500/15 border-rose-500 text-white shadow-lg shadow-rose-950/40"
+                      : "bg-surface border-surface-border text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center">
+                        <Flame className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-white">Mode 1 — Devil&apos;s Advocate</span>
+                    </div>
+                    {mode === "devils_advocate" && (
+                      <span className="w-2 h-2 rounded-full bg-rose-500" />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-snug">
+                    Challenges assumptions, gives rigorous counterarguments, asks tough questions, and remains respectful.
+                  </p>
+                </button>
+
+                {/* Mode 2: Socratic */}
+                <button
+                  type="button"
+                  onClick={() => setMode("socratic")}
+                  className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                    mode === "socratic"
+                      ? "bg-purple-500/15 border-purple-500 text-white shadow-lg shadow-purple-950/40"
+                      : "bg-surface border-surface-border text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                        <HelpCircle className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-white">Mode 2 — Socratic</span>
+                    </div>
+                    {mode === "socratic" && (
+                      <span className="w-2 h-2 rounded-full bg-purple-500" />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-snug">
+                    Primarily asks probing questions to examine definitions and causal leaps (&quot;What do you mean by better?&quot;).
+                  </p>
+                </button>
+
+                {/* Mode 3: Opponent */}
+                <button
+                  type="button"
+                  onClick={() => setMode("opponent")}
+                  className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                    mode === "opponent"
+                      ? "bg-amber-500/15 border-amber-500 text-white shadow-lg shadow-amber-950/40"
+                      : "bg-surface border-surface-border text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center">
+                        <Swords className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-white">Mode 3 — Opponent</span>
+                    </div>
+                    {mode === "opponent" && (
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-snug">
+                    Takes the opposite position and constructs the strongest reasonable tournament case against your stance.
+                  </p>
+                </button>
+
+                {/* Mode 4: Neutral Judge */}
+                <button
+                  type="button"
+                  onClick={() => setMode("neutral_judge")}
+                  className={`p-3.5 rounded-xl border text-left transition-all relative ${
+                    mode === "neutral_judge"
+                      ? "bg-emerald-500/15 border-emerald-500 text-white shadow-lg shadow-emerald-950/40"
+                      : "bg-surface border-surface-border text-zinc-400 hover:border-zinc-700 hover:text-zinc-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                        <Award className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-xs font-bold text-white">Mode 4 — Neutral Judge</span>
+                    </div>
+                    {mode === "neutral_judge" && (
+                      <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    )}
+                  </div>
+                  <p className="text-[11px] text-zinc-400 leading-snug">
+                    Does not argue. Objectively audits both sides across Logic, Evidence, Rebuttal, Clarity, and Consistency.
+                  </p>
+                </button>
+              </div>
+            </div>
+
             {/* Difficulty and Rounds */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Difficulty */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-zinc-300">
-                  Devil&apos;s Advocate Intensity
+                  {mode === "neutral_judge" ? "Adjudicator Rigor" : "Agent Intensity"}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {(["friendly", "standard", "brutal"] as const).map((lvl) => (

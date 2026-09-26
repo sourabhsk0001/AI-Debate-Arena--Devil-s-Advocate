@@ -39,6 +39,7 @@ class CreateDebateRequest(BaseModel):
     topic: str
     user_position: str # "for" or "against"
     difficulty: str = "standard" # "friendly", "standard", "brutal"
+    mode: str = "devils_advocate" # "devils_advocate", "socratic", "opponent", "neutral_judge"
     total_rounds: int = 3
 
 class SubmitTurnRequest(BaseModel):
@@ -50,6 +51,7 @@ class DebateSession(BaseModel):
     topic: str
     user_position: str
     difficulty: str
+    mode: str = "devils_advocate" # "devils_advocate", "socratic", "opponent", "neutral_judge"
     total_rounds: int
     current_round: int = 1
     status: str = "active" # "active", "completed"

@@ -83,10 +83,16 @@ export default function DebateBox({ session, onSessionUpdate }: DebateBoxProps) 
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <span className="text-xs uppercase font-extrabold tracking-wider px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                Arena Match
+                {session.mode === "socratic"
+                  ? "Mode 2 — Socratic"
+                  : session.mode === "opponent"
+                  ? "Mode 3 — Opponent"
+                  : session.mode === "neutral_judge"
+                  ? "Mode 4 — Neutral Judge"
+                  : "Mode 1 — Devil's Advocate"}
               </span>
               <span className="text-xs text-zinc-400 capitalize">
-                Mode: {session.difficulty}
+                Intensity: {session.difficulty}
               </span>
             </div>
             <h2 className="text-base sm:text-lg font-bold text-white leading-tight">
@@ -149,7 +155,13 @@ export default function DebateBox({ session, onSessionUpdate }: DebateBoxProps) 
             <div>
               <h3 className="text-lg font-bold text-white">Opening Round</h3>
               <p className="text-xs text-zinc-400 mt-1 leading-relaxed">
-                State your strongest argument in favor of your position ({session.user_position.toUpperCase()}). The AI Devil&apos;s Advocate is poised to analyze your premises, cross-examine assumptions, and retrieve counter-evidence.
+                {session.mode === "socratic"
+                  ? "State your opening thesis. The Socratic Inquirer will probe your definitions and underlying premises."
+                  : session.mode === "opponent"
+                  ? "State your opening thesis. The Opponent will construct the strongest counter-resolution case against you."
+                  : session.mode === "neutral_judge"
+                  ? "State your opening thesis. The Neutral Judge will analyze your argument across Logic, Evidence, Rebuttal, Clarity, and Consistency."
+                  : `State your strongest argument in favor of your position (${session.user_position.toUpperCase()}). The Devil's Advocate is poised to analyze your premises and cross-examine assumptions.`}
               </p>
             </div>
             <div className="text-[11px] text-zinc-500 bg-surface/50 border border-surface-border p-3 rounded-lg text-left w-full space-y-1">
@@ -165,6 +177,7 @@ export default function DebateBox({ session, onSessionUpdate }: DebateBoxProps) 
               key={idx}
               turn={turn}
               userPosition={session.user_position}
+              mode={session.mode}
             />
           ))
         )}
@@ -178,7 +191,15 @@ export default function DebateBox({ session, onSessionUpdate }: DebateBoxProps) 
             <div className="glass-panel-danger p-4 rounded-2xl rounded-tl-none border border-rose-500/30 space-y-2">
               <div className="flex items-center gap-2 text-rose-300 text-xs font-semibold">
                 <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
-                <span>Devil&apos;s Advocate is dismantling your argument...</span>
+                <span>
+                  {session.mode === "socratic"
+                    ? "Socratic Inquirer is formulating a probing question..."
+                    : session.mode === "opponent"
+                    ? "Debate Opponent is preparing counter-case..."
+                    : session.mode === "neutral_judge"
+                    ? "Neutral Adjudicator is auditing Logic, Evidence, Rebuttal, Clarity & Consistency..."
+                    : "Devil's Advocate is dismantling your argument..."}
+                </span>
               </div>
               <p className="text-xs text-zinc-400 leading-relaxed">
                 Scanning for logical fallacies, querying vector evidence base, and preparing targeted cross-examination questions.
