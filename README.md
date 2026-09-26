@@ -1,9 +1,10 @@
 # AI Debate Arena — Devil's Advocate
 
-> **Production-Quality Adversarial GenAI Platform for Argument Stress-Testing, Fallacy Detection, and Multi-Factor Adjudication.**
+> **Production-Quality Adversarial GenAI Platform for Argument Stress-Testing, Fallacy Detection, Empirical RAG Counter-Evidence, and Multi-Factor Adjudication.**
 
-[![Next.js](https://img.shields.io/badge/Frontend-Next.js%2014-black?logo=next.js)](https://nextjs.org/)
+[![Next.js 14](https://img.shields.io/badge/Frontend-Next.js%2014%20(App%20Router)-black?logo=next.js)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/Backend-FastAPI-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![LangGraph](https://img.shields.io/badge/AI%20Workflow-LangGraph-FF4F00?logo=langchain)](https://github.com/langchain-ai/langgraph)
 [![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![Docker](https://img.shields.io/badge/DevOps-Docker%20Compose-2496ED?logo=docker)](https://www.docker.com/)
 
@@ -12,71 +13,122 @@
 ## 🏛️ System Architecture
 
 ```text
-               ┌────────────────────────────────────────────────────────┐
-               │              Next.js 14 Web Frontend                   │
-               │   • Modern Cyber-Dark SaaS UI (Tailwind CSS)           │
-               │   • Live Arena, Diagnostics Drawer, Scorecard          │
-               └──────────────────────────┬─────────────────────────────┘
-                                          │ REST / JSON
-                                          ▼
-               ┌────────────────────────────────────────────────────────┐
-               │                 FastAPI Python Backend                 │
-               │   • JWT Auth & Guest Session Management                │
-               │   • Session State & Round Orchestration                │
-               └──────────────┬───────────────────────────┬─────────────┘
-                              │                           │
-                              ▼                           ▼
-        ┌───────────────────────────────┐   ┌───────────────────────────┐
-        │  Cognitive Debate Agent       │   │  RAG Knowledge Base       │
-        │  (LangGraph / OpenAI / Claude)│   │  (Empirical Vector Store) │
-        │  • Fallacy Detection          │   │  • Stanford AI Reports    │
-        │  • Vulnerability Scanning     │   │  • NBER / Brookings / IEA │
-        │  • Cross-Examination Engine   │   │  • Semantic Similarity    │
-        └──────────────┬────────────────┘   └───────────────────────────┘
-                       │
-                       ▼
-        ┌───────────────────────────────┐   ┌───────────────────────────┐
-        │   Chief Adjudicator Engine    │   │  Database Storage         │
-        │   • Logic & Reasoning (0-10)  │   │  • MongoDB / Mongo Atlas  │
-        │   • Evidence Grounding (0-10) │   │  • Resilient JSON Store   │
-        │   • Rebuttal Strength (0-10)  │   └───────────────────────────┘
-        │   • Clarity & Rhetoric (0-10) │
-        └───────────────────────────────┘
+                  ┌────────────────────────────────────────────────────────┐
+                  │                 Next.js 14 Web Frontend                │
+                  │   • Cyber-Dark AI SaaS Design (Obsidian & Crimson)     │
+                  │   • Live Arena Transcript, Diagnostics, Scorecard      │
+                  │   • Routes: /, /dashboard, /debate/new, /debate/[id],  │
+                  │     /debate/[id]/results, /history                     │
+                  └───────────────────────────┬────────────────────────────┘
+                                              │ REST / JSON
+                                              ▼
+                  ┌────────────────────────────────────────────────────────┐
+                  │                  FastAPI Python Backend                │
+                  │   • JWT Auth & Guest Session Management                │
+                  │   • Full Section 20 REST API Spec                      │
+                  │   • Resilient Storage (MongoDB Atlas + Fallback)       │
+                  └───────────────────────────┬────────────────────────────┘
+                                              │
+                                              ▼
+                  ┌────────────────────────────────────────────────────────┐
+                  │            LangGraph Cognitive Architecture            │
+                  │   START                                                │
+                  │     ▼                                                  │
+                  │   [1 & 2] argument_analyzer & weakness_detector        │
+                  │     ▼                                                  │
+                  │   [3] evidence_retriever (RAG Empirical Corpus)        │
+                  │     ▼                                                  │
+                  │   [4 & 5] devil_advocate & question_generator          │
+                  │     ▼                                                  │
+                  │   [6] response_evaluator (Rubric Scoring)              │
+                  │     ▼                                                  │
+                  │   (Rounds Complete? ──► [7] debate_judge ──► END)      │
+                  └────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## ✨ Key Features
+## 🎭 4 Debate Modes
 
-1. **Adversarial Devil's Advocate Agent**:
-   - Takes the counter-stance to challenge the user's worldview.
-   - 3 difficulty levels: *Friendly Spar*, *Ivy League Debater*, and *Brutal Devil's Advocate*.
-   - Generates incisive counterarguments and high-pressure cross-examination questions.
-
-2. **Real-Time Cognitive Fallacy Scanner**:
-   - Analyzes user statements for *Hasty Generalizations*, *Slippery Slope*, *False Dilemmas*, and *Unwarranted Absolutism*.
-
-3. **RAG (Retrieval-Augmented Generation) Counter-Evidence**:
-   - Automatically searches indexed empirical studies (Stanford HAI, Goldman Sachs, Brookings Institution, IEA, NBER) to refute weak claims with real data.
-
-4. **Multi-Factor Scorecard & Adjudication**:
-   - Evaluates rounds based on 4 rigorous debate criteria:
-     - Logic & Reasoning (0–10)
-     - Evidence & Factual Grounding (0–10)
-     - Rebuttal Effectiveness (0–10)
-     - Persuasiveness & Rhetorical Clarity (0–10)
-   - Outputs winner declaration, strengths, vulnerabilities, and personalized debater coaching tips.
-
-5. **Modern AI SaaS Design**:
-   - Obsidian/Crimson visual theme, glassmorphism, responsive round progress indicators, and interactive cards.
+1. **Mode 1 — Devil's Advocate**:
+   - Adversarially challenges user premises, identifies unstated assumptions, reveals vulnerabilities, and generates counter-warrants.
+2. **Mode 2 — Socratic**:
+   - Questions definitions, boundaries, and conflations without immediately presenting opposing factual assertions.
+3. **Mode 3 — Opponent**:
+   - Takes the strict formal opposing position (*For* vs *Against*) and constructs the strongest counter-resolution.
+4. **Mode 4 — Neutral Judge**:
+   - Bench adjudicator analyzing logic, evidence citations, rebuttal responsiveness, clarity, and consistency across each turn.
 
 ---
 
-## 🚀 Quickstart Guide
+## 📊 5-Factor Adjudication Rubric (Section 16)
 
-### Option 1: Running Locally
+Evaluates user arguments on a 0–10 scale:
+- **Logic**: Logical consistency, deductive validity, absence of informal fallacies.
+- **Evidence**: Empirical grounding, verifiable data citations, statistical rigor.
+- **Rebuttal**: Direct responsiveness to adversarial cross-examination.
+- **Clarity**: Rhetorical conciseness, precision of language, persuasive framing.
+- **Consistency**: Internal stability of core thesis across multiple debate rounds.
 
-#### 1. Start the FastAPI Backend
+Plus qualitative feedback:
+- **Strengths**: Observed structural merits.
+- **Weaknesses**: Unaddressed counterweights.
+- **Improvement Suggestions**: Actionable debater coaching advice.
+
+---
+
+## 📂 Project Structure
+
+```text
+ai-debate-arena/
+├── frontend/                     # Next.js 14 App Router Frontend
+│   ├── app/
+│   │   ├── page.tsx              # Landing Page ("Think. Argue. Defend.")
+│   │   ├── dashboard/page.tsx    # Debater Dashboard & Performance Metrics
+│   │   ├── debate/new/page.tsx   # Debate Setup (Topic, Position, Mode, Intensity)
+│   │   ├── debate/[id]/page.tsx  # 3-Column Live Arena & Diagnostics
+│   │   ├── debate/[id]/results/  # Post-Debate Evaluation & Scorecards
+│   │   └── history/page.tsx      # Filterable Match Archive
+│   ├── components/               # 13 Production UI Components
+│   ├── lib/api.ts                # Full API Client with Offline Fallback
+│   └── types/debate.ts           # Comprehensive TypeScript Definitions
+│
+├── backend/                      # FastAPI Python Backend
+│   ├── app/
+│   │   ├── agents/               # LangGraph State & Cognitive Nodes
+│   │   │   ├── analyzer.py       # Node 1 & 2: Claim & Weakness Detector
+│   │   │   ├── generator.py      # Node 4 & 5: Counterargument & Question Generator
+│   │   │   ├── evaluator.py      # Node 6 & 7: Round Scorer & Final Adjudicator
+│   │   │   ├── graph.py          # StateGraph Orchestration Engine
+│   │   │   └── state.py          # DebateGraphState TypedDict
+│   │   ├── rag/
+│   │   │   └── retriever.py      # Empirical RAG Retriever (Stanford, NBER, IEA)
+│   │   ├── routers/
+│   │   │   ├── auth.py           # /api/auth (Register, Login, Guest, Me)
+│   │   │   ├── debates.py        # /api/debates (CRUD, Messages, Evaluate)
+│   │   │   ├── rag.py            # /api/rag/search (Empirical Search)
+│   │   │   └── topics.py         # /api/topics (Featured Motions)
+│   │   ├── core/                 # Config, JWT, Storage Engine
+│   │   ├── schemas/              # Pydantic Request & Response Schemas
+│   │   └── main.py               # FastAPI App Lifespan & Middlewares
+│   ├── tests/                    # Pytest Suite
+│   │   ├── test_auth.py          # Auth & Token tests
+│   │   ├── test_debates.py       # Debate session lifecycle tests
+│   │   ├── test_messages.py      # Message turn & LangGraph state tests
+│   │   ├── test_evaluation.py    # 5-factor scoring rubric tests
+│   │   └── test_rag.py           # RAG retrieval tests
+│   └── requirements.txt
+│
+└── docker-compose.yml            # Multi-container production deployment
+```
+
+---
+
+## 🚀 Getting Started
+
+### 1. Local Development
+
+#### Start Backend:
 ```bash
 cd backend
 python -m venv venv
@@ -88,55 +140,23 @@ python -m venv venv
 pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
-*Backend Swagger Docs will be available at: `http://localhost:8000/docs`*
+Swagger API docs: `http://localhost:8000/docs`
 
-#### 2. Start the Next.js Frontend
+#### Start Frontend:
 ```bash
-# In the project root directory
+cd frontend
 npm install
 npm run dev
 ```
-*Frontend will be running at: `http://localhost:3000`*
+Open `http://localhost:3000`
 
----
-
-### Option 2: Running with Docker Compose
-
+### 2. Run with Docker Compose
 ```bash
 docker-compose up --build
 ```
-This boots up:
-- Next.js frontend on `http://localhost:3000`
-- FastAPI backend on `http://localhost:8000`
-- MongoDB on port `27017`
 
----
-
-## ⚙️ Environment Variables
-
-### Backend (`backend/.env`)
-| Variable | Description | Default |
-| :--- | :--- | :--- |
-| `OPENAI_API_KEY` | OpenAI API Key (optional; intelligent heuristic engine activates if empty) | `None` |
-| `OPENAI_MODEL` | OpenAI Model | `gpt-4o-mini` |
-| `MONGODB_URI` | MongoDB Connection URI | `mongodb://localhost:27017` |
-| `SECRET_KEY` | JWT Signing Secret | `your_secret_key` |
-| `PORT` | API Server Port | `8000` |
-
-### Frontend (`.env.local`)
-| Variable | Description | Default |
-| :--- | :--- | :--- |
-| `NEXT_PUBLIC_API_URL` | Backend API base URL | `http://127.0.0.1:8000` |
-
----
-
-## 📡 API Reference
-
-- `POST /api/auth/guest` — Generate instant guest debater token
-- `GET /api/topics` — List featured debate topics & categories
-- `POST /api/debates` — Create a new debate session
-- `GET /api/debates/{id}` — Fetch debate session state
-- `POST /api/debates/{id}/turn` — Submit debater rebuttal & trigger Devil's Advocate
-- `POST /api/debates/{id}/conclude` — Adjudicate debate and compute scorecard
-- `GET /api/evidence/search` — Query RAG empirical evidence base
-- `GET /health` — Health check & service connectivity status
+### 3. Run Automated Tests
+```bash
+cd backend
+pytest -v
+```

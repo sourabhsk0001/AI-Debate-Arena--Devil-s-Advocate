@@ -111,3 +111,15 @@ class StorageService:
             all_debates = [d for d in all_debates if d.get("user_id") == user_id]
         all_debates.sort(key=lambda x: x.get("created_at", ""), reverse=True)
         return all_debates[:limit]
+
+    @staticmethod
+    async def delete_debate(debate_id: str) -> bool:
+        if db_manager.is_connected and db_manager.db is not None:
+            res = await db_manager.db.debates.delete_one({"id": debate_id})
+            return res.deleted_count > 0
+        if debate_id in db_manager._memory_debates:
+            del db_manager._memory_debates[debate_id]
+            db_manager._save_fallback()
+            return True
+        return False
+

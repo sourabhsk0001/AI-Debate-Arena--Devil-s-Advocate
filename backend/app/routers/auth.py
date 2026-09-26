@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status, Depends
 from app.models.user import UserRegister, UserLogin, TokenResponse, UserResponse
 from app.core.auth import hash_password, verify_password, create_access_token, get_current_user_optional
@@ -18,7 +18,7 @@ async def register(user_in: UserRegister):
         "name": user_in.name,
         "email": user_in.email,
         "hashed_password": hash_password(user_in.password),
-        "created_at": datetime.utcnow().isoformat()
+        "created_at": datetime.now(timezone.utc).isoformat()
     }
     user = await StorageService.create_user(user_dict)
     
@@ -47,7 +47,7 @@ async def guest_login():
     token = create_access_token({"sub": guest_id, "email": f"{guest_id}@guest.arena", "name": "Guest Debater"})
     return TokenResponse(
         access_token=token,
-        user=UserResponse(id=guest_id, name="Guest Debater", email=f"{guest_id}@guest.arena", created_at=datetime.utcnow().isoformat())
+        user=UserResponse(id=guest_id, name="Guest Debater", email=f"{guest_id}@guest.arena", created_at=datetime.now(timezone.utc).isoformat())
     )
 
 @router.get("/me")
