@@ -9,7 +9,7 @@ Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", "c
 
 # 2. Start Next.js Frontend
 Write-Host "[2/2] Launching Next.js Frontend on http://localhost:3000..." -ForegroundColor Green
-Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", "npm run dev"
+Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", "cd frontend; npm run dev"
 
 Write-Host "`nAll services launched!" -ForegroundColor Cyan
 Write-Host "• Frontend: http://localhost:3000" -ForegroundColor White

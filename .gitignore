@@ -5,6 +5,8 @@ backend/venv/
 # Next.js
 .next/
 out/
+build/
+*.tsbuildinfo
 
 # Python
 __pycache__/
