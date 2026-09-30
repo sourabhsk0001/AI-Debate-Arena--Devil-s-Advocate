@@ -46,6 +46,7 @@ app.include_router(rag.router)
 app.include_router(courtroom.router)
 
 @app.get("/health")
+@app.get("/api/health")
 async def health_check():
     return {
         "status": "healthy",

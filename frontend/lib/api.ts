@@ -8,8 +8,22 @@ import {
   EvidenceItem,
 } from "@/types/debate";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+function getBaseUrl(): string {
+  // 1. If running server-side in Vercel / SSR, use the internal service binding BACKEND_URL
+  if (typeof window === "undefined" && process.env.BACKEND_URL) {
+    return process.env.BACKEND_URL.replace(/\/$/, "");
+  }
+  // 2. Explicit public API URL if configured
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL.replace(/\/$/, "");
+  }
+  // 3. Client-side in browser: relative path ("") routes to /api/* via Vercel rewrites or next.config.mjs proxy
+  if (typeof window !== "undefined") {
+    return "";
+  }
+  // 4. Server-side local development fallback
+  return "http://127.0.0.1:8000";
+}
 
 class ApiClient {
   private token: string | null = null;
@@ -45,7 +59,10 @@ class ApiClient {
       headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const res = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const baseUrl = getBaseUrl();
+    const url = baseUrl ? `${baseUrl}${endpoint}` : endpoint;
+
+    const res = await fetch(url, {
       ...options,
       headers,
     });
